@@ -1,7 +1,7 @@
 from flask import Flask, request, render_template, jsonify
 from poynter_module import get_altaz, get_daltdaz
 import requests
-from os import system, fork
+from os import system, fork, kill
 import sched, time
 from subprocess import Popen
 import random
@@ -62,7 +62,7 @@ def point():
             for process in PROCESSES:
                 print("process:", process)
                 try:
-                    os.kill(process, signal.SIGKILL)
+                    kill(process, signal.SIGKILL)
                     print "after"
                 except OSError, e:
                     print "error: ", e.errno
@@ -70,8 +70,8 @@ def point():
         p = Popen(['python', 'spaceshark.py', str(device_id), str(access_token), str(d_alt), str(d_az), str(DELAY)])
 
         PROCESSES.append(p.pid)
-    except:
-        print("oops.")
+    except Exception as e:
+        print(e)
 
     return jsonify(response="ok")
 
@@ -88,7 +88,7 @@ def delta_update(device_id, access_token, d_alt, d_az, delay):
                                                                     '-d access_token='+str(access_token)+' ' \
                                                                     '-d "args='+str(d_az)+'"')
 
-    time.sleep(delay)
+    time.sleep(float(delay))
     delta_update(device_id, access_token, d_alt, d_az, delay)
 
     #sc.enter(delay, 1, delta_update, (sc, device_id, access_token, d_alt, d_az,))
