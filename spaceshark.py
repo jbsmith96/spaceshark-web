@@ -11,7 +11,7 @@ s = sched.scheduler(time.time, time.sleep)
 API_KEY = 'AIzaSyCY8AUysBMDz0d20GuIUaMbyJrr6pL-RYQ'
 global PROCESSES
 PROCESSES = []
-DELAY = 60.
+DELAY = 60.0
 
 rand = random.random()
 
@@ -47,14 +47,10 @@ def point():
 
         # Convert coordinates (lng, lat) --> (alt, az)
         alt, az = get_altaz(object, location['lng'], location['lat'])
-        # Send command to clouddy hardware for alt
-        system('curl https://api.particle.io/v1/devices/'+str(device_id)+'/point_alt ' \
+        # Send command to clouddy hardware
+        system('curl https://api.particle.io/v1/devices/'+str(device_id)+'/point_alt_az ' \
                '-d access_token='+str(access_token)+' ' \
-               '-d "args='+str(alt)+'"')
-
-        system('curl https://api.particle.io/v1/devices/'+str(device_id)+'/point_az ' \
-               '-d access_token='+str(access_token)+' ' \
-               '-d "args='+str(az)+'"')
+               '-d "args='+str(alt)+','+str(az)+'"')
 
         # Convert coordinates (lng, lat) --> (alt, az)
         d_alt, d_az = get_daltdaz(object, location['lng'], location['lat'])
@@ -71,7 +67,7 @@ def point():
                 except OSError, e:
                     print "error: ", e.errno
 
-        p = Popen(['python', 'astropointer.py', str(device_id), str(access_token), str(d_alt), str(d_az), str(DELAY)])
+        p = Popen(['python', 'spaceshark.py', str(device_id), str(access_token), str(d_alt), str(d_az), str(DELAY)])
 
         PROCESSES.append(p.pid)
     except:
